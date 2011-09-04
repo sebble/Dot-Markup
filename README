@@ -1,3 +1,13 @@
  ... Dot Markup ...
 
-Dot Markup is a highly configurable HTML markup language which aims to cover all main features of HTML while keeping style decisions away from the user and providing source that can be easily read and modified.
+Dot Markup is a highly configurable HTML markup language which aims 
+to cover all main features of HTML while keeping style decisions away 
+from the user and providing source that can be easily read and modified.
+
+
+ .... Features to come:
+
+ * Better configuration file structure
+  + modular loading of config files
+
+ * Something else..

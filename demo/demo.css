@@ -1,16 +1,76 @@
 
 body#preview {
-    margin: 0 0 0 50%;
+    margin: 0 1em 0 50%;
+    overflow: auto;
 }
 
 textarea#source {
-    position: absolute;
-    top: 0;
-    left: 0;
+    position: fixed;
+    top: 1em;
+    left: 1em;
+    bottom: 1em;
     width: 48%;
-    height: 96%;
     padding: 0;
-    margin: 2% 1%;
+    margin: 0;
     border: none;
     outline: none;
+}
+
+/*
+canvas#outline {
+    position: fixed;
+    top: 4em;
+    right: 1em;
+    opacity: 0.3;
+}
+canvas#outline:hover {
+    position: fixed;
+    top: 4em;
+    right: 1em;
+    opacity: 1;
+}
+*/
+
+/* Numbered Headings */
+/*body {
+    counter-reset: headone;
+}*/
+h1 {
+    counter-reset: headtwo;
+}
+h2 {
+    counter-reset: headthree;
+}
+h3 {
+    counter-reset: headfour;
+}
+h4 {
+    counter-reset: headfive;
+}
+h5 {
+    counter-reset: headsix;
+}
+/*h1:before {
+    content: counter(headone) " - ";
+    counter-increment: headone;
+}*/
+h2:before {
+    content: counter(headtwo) " - ";
+    counter-increment: headtwo;
+}
+h3:before {
+    content: counter(headtwo) "." counter(headthree) " - ";
+    counter-increment: headthree;
+}
+h4:before {
+    content: counter(headtwo) "." counter(headthree) "." counter(headfour) " - ";
+    counter-increment: headfour;
+}
+h5:before {
+    content: counter(headtwo) "." counter(headthree) "." counter(headfour) "." counter(headfive) " - ";
+    counter-increment: headfive;
+}
+h6:before {
+    content: counter(headtwo) "." counter(headthree) "." counter(headfour) "." counter(headfive) "." counter(headsix) " - ";
+    counter-increment: headsix;
 }

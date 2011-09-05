@@ -476,7 +476,7 @@ class WikiParser{
                 $format = array();
                 $id = ($m[1]=='') ? '' : ' id="'.$m[1].'"' ;
                 $class = $this->_class($m[2]);
-                $params = explode(',',$m[4]);
+                $params = (isset($m[4])) ? explode(',',$m[4]) : array() ;
                 $format[0] = $clx[1];
                 $format[1] = (isset($m[3])) ? $m[3] : '';
                 $format[2] = (isset($m[5])) ? $this->_parseInline($m[5]) : '';

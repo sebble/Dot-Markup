@@ -32,9 +32,14 @@ canvas#outline:hover {
 */
 
 /* Numbered Headings */
-/*body {
+body {
     counter-reset: headone;
-}*/
+    counter-reset: headtwo;
+    counter-reset: headthree;
+    counter-reset: headfour;
+    counter-reset: headfive;
+    counter-reset: headsix;
+}
 h1 {
     counter-reset: headtwo;
 }

@@ -38,6 +38,7 @@ $(function(){
             $.post('demo.php', {text:$('#source').val()}, function(data){
                 //console.log(data);
                 $('#html').html(data);
+                MathJax.Hub.Typeset()
                 //$( "#outline" ).fracs( 'outline', 'redraw' );
             }, 'html');
         }, 600);
@@ -45,6 +46,7 @@ $(function(){
     
     $.post('demo.php', {text:$('#source').val()}, function(data){
         $('#html').html(data);
+        MathJax.Hub.Typeset()
     //    prepareOutline();
     }, 'html');
 });

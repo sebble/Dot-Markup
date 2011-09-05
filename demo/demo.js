@@ -22,8 +22,34 @@ $(function(){
     // append to body
     $('body').append(selector);
     
+    // create document selector
+    var document = $("<form />")
+        .css({position:'fixed',top:'1em',right:'53%',opacity:'0.2'})
+        .append(
+            $("<input />").attr('id','filename')
+        )
+        .append(
+            $("<a />").text("Load").css({cursor:'pointer'})
+            .click(function(){
+                //console.log($('#filename').val()+'.dm');
+                var fileName = $('#filename').val()+'.dm';
+                var string = $.ajax({type: "GET", url: fileName, async: false}).responseText;
+                $('#source').val(string).keyup();
+            })
+        ).submit(function(e){
+            e.preventDefault();
+            $('a',this).click();
+        }).hover(function(){
+            $(this).css({opacity:1})
+        },function(){
+            $(this).css({opacity:0.2})
+        });
+    $('body').append(document);
+    
+    
     // select basicplus
     $('#style-select').val('basicplus').change();
+    $('#filename').val('documentation').parent().submit();
 });
 
 ////// Markup Parser //////

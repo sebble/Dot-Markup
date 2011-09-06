@@ -1,0 +1,88 @@
+  = Dot Markup
+
+ == Version 1.0
+
+Version 1.0 is the first version of Dot Markup with the new features.
+
+=== Design Notes
+
+Process:
+ * extract protected groups
+ * extract other groups
+
+==== Features
+
+ ; Groups:
+  : - to protect, clean-up, provide whitespace control
+ ; Blocks:
+  : - to protect, clean-up, provide whitespace control
+
+!! Dot Markup !! Textile || Description !!
+|| group || - || managing, protecting, embedding ||
+|| block || block || start/end tags, parse content, newlines allowed ||
+|| liner || block || start/end tags, parse content, no newlines ||
+|| inline || phrase || start=end, class/id, parse inline ||
+|| complex || phrase || name, complex parsing ||
+|| symbol || glyph || string vs. regex ||
+|| special || block || each line is important, complex parsing ||
+
+=== Configuration Parameters
+
+==== Current
+
+<style>.done{text-decoration:line-through;color:#ccc;}</style>
+
+ * options
+
+ * symbols
+ ** string_match
+ ** string_replace
+ ** do first/second
+ * inlines
+ ** string_match
+ ** element replace
+ ** do first/second
+ * complex
+ ** name
+ ** sprintf replace
+ ** extra params ''- unnecessary''
+ ** ''drop empty attrs?''
+ *.done groups ''- things to ignore/reparse''
+ ** start string
+ ** end string
+ ** evaluate?
+ ** inline/block
+ ** drop ends?
+ ** ''previous three replace with mode: keep/inline/block/none/remove''
+ *.done liners
+ ** re_start
+ ** re_match
+ ** re_end
+ ** element
+ ** singleton?
+ ** ''replace with string, element ''
+ *.done blocks
+ ** start string
+ ** html element
+ ** evaluate?
+ ** inline/block
+ ** ''''
+ * special
+ ** table
+ ** list
+ ** def'n list
+ **.done paragraph
+ **.done md5
+
+==== <<<Textile.js 
+  ##[[link:https://github.com/christianp/jstextile/blob/master/textile.js GitHub]]##>>>
+
+ * glyphRules
+ ** re_match
+ ** re_replace
+ * phraseTypes
+ ** symbols string
+ ** HTML element
+ * blockTypes
+ ** isMatch boolean function
+ ** convert function

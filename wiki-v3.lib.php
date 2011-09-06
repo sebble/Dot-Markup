@@ -669,13 +669,14 @@ $WIKI_DEFAULT_CONFIG = array(
         #array('ia','<a%4$s href="%5$s"><img%4$s src="%1$s" alt="%2$s" title="%3$s" width="%6$s" height="%7$s /></a>',3)
         array('text','<label for="%1$s">%2$s</label><input%4$s type="text" name="%1$s" id="%1$s" placeholder="%3$s" />'),
         array('password','<label for="%1$s">%2$s</label><input%4$s type="password" name="%1$s" id="%1$s" />'),
-        array('checkbox','<input%4$s type="checkbox" name="%1$s" id="%1$s_%5$s" value="%5$s" /><label title="%3$s" for="%1$s_%5$s">%2$s</label>',1),
-        array('radio','<input%4$s type="radio" name="%1$s" id="%1$s_%5$s" value="%5$s" /><label title="%3$s" for="%1$s_%5$s">%2$s</label>',1),
+        array('checkbox','<input%4$s type="checkbox" name="%1$s" id="%1$s_%5$s" value="%5$s" %6$s /><label title="%3$s" for="%1$s_%5$s">%2$s</label>',2),
+        array('radio','<input%4$s type="radio" name="%1$s" id="%1$s_%5$s" value="%5$s" %6$s /><label title="%3$s" for="%1$s_%5$s">%2$s</label>',2),
         array('textarea','<label for="%1$s">%2$s</label><textarea%4$s name="%1$s" id="%1$s">%3$s</textarea>'),
         array('file','<label for="%1$s">%2$s</label><input%4$s type="file" name="%1$s" id="%1$s" />'),
         array('submit','<input%4$s type="submit" value="%2$s" />'),
         array('reset','<input%4$s type="reset" value="%2$s" />'),
         array('button','<input%4$s type="button" value="%2$s" />'),
+        /*hidden input*/
         array('form','<form%4$s action="%1$s" method="%5$s"><fieldset><legend>%2$s</legend>',1)
     ),
     'groups'=>array(

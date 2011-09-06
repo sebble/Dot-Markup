@@ -64,7 +64,8 @@ $(function(){
             $.post('demo.php', {text:$('#source').val()}, function(data){
                 //console.log(data);
                 $('#html').html(data);
-                MathJax.Hub.Typeset()
+                MathJax.Hub.Typeset();
+                ToC2();
                 //$( "#outline" ).fracs( 'outline', 'redraw' );
             }, 'html');
         }, 600);
@@ -72,7 +73,8 @@ $(function(){
     
     $.post('demo.php', {text:$('#source').val()}, function(data){
         $('#html').html(data);
-        MathJax.Hub.Typeset()
+        MathJax.Hub.Typeset();
+        ToC2();
     //    prepareOutline();
     }, 'html');
 });
@@ -134,3 +136,55 @@ $(function(){
 		} );*/
 //});
 //}
+
+////// ToC Script //////
+
+function ToC2() {
+
+    $('#toc2').remove();
+    var $list = $('<ul />').attr('id','toc2')
+      .css({listStyle:'none', position:'fixed', top:'4em', right:'0em', bottom:'4em', overflow:'auto', margin:0, padding:'0.5em 0', borderLeft:'solid 2px #333', backgroundColor:'#fff'})
+      .hover(function(){
+          $(this).stop(true,true).animate({/*opacity:1, */marginRight:'0'});
+      },function(){
+          $(this).stop(true,true).animate({/*opacity:0.1, */marginRight:'-'+($(this).width()-15)+'px'});
+      });
+    
+    $('h1,h2,h3,h4,h5,h6').each(function(){
+        
+        $this = $(this);
+        
+        if ($this.closest('form').length > 0) return; // avoid forms
+        
+        var id = makeid();
+        var level = this.nodeName.toLowerCase().substr(1);
+        var title = $this.text();
+        $list.append(
+            $('<li />').css({padding:0, margin:0, padding:'0.2em 1em', paddingLeft:(level-0)+'em'})
+            .append(
+                $('<a href="#'+id+'">'+title+'</a>')
+            )
+        );
+        
+        $this.html('<a name="'+id+'">'+$this.html()+'</a>');
+    });
+    
+    $list.appendTo('body').mouseleave();
+}
+
+function makeid()
+{
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    for( var i=0; i < 9; i++ )
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+    return text;
+}
+
+
+
+
+
+

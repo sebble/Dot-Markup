@@ -32,7 +32,7 @@ $(function(){
             $("<a />").text("Load").css({cursor:'pointer'})
             .click(function(){
                 //console.log($('#filename').val()+'.dm');
-                var fileName = $('#filename').val()+'.dm';
+                var fileName = 'documents/'+$('#filename').val()+'.dm';
                 var string = $.ajax({type: "GET", url: fileName, async: false}).responseText;
                 $('#source').val(string).keyup();
             })

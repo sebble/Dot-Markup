@@ -169,7 +169,7 @@ function ToC2() {
         $this.html('<a name="'+id+'">'+$this.html()+'</a>');
     });
     
-    $list.appendTo('body').mouseleave();
+    $list.appendTo('body').css({marginRight:'-'+($list.width()-15)+'px'});
 }
 
 function makeid()

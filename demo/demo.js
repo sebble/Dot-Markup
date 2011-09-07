@@ -66,6 +66,7 @@ $(function(){
                 $('#html').html(data);
                 MathJax.Hub.Typeset();
                 ToC2();
+                scrollImg();
                 //$( "#outline" ).fracs( 'outline', 'redraw' );
             }, 'html');
         }, 600);
@@ -78,6 +79,16 @@ $(function(){
     //    prepareOutline();
     }, 'html');
 });
+
+var si = false;
+var sid = '';
+
+function scrollImg(){
+    if (si) {
+        $('#preview').scrollTop($('#'+sid).offset().top);
+        si = false;
+    }
+}
 
 ////// Canvas 'fracs' Outliner //////
 

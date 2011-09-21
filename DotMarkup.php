@@ -1,5 +1,11 @@
 <?php
 
+/*
+ Notes:
+   o  move parser and config into sys dir
+   o  extend parser class to interface class in here
+*/
+
 class DotMarkup {
 
     var $source;

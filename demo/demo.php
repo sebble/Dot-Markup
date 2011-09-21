@@ -12,6 +12,14 @@ if (isset($_POST['text'])) {
         
         $_POST['filename'] = preg_replace('#[^a-z0-9_\.\-]#i','',$_POST['filename']);
     
-        file_put_contents('documents/'.$_POST['filename'].'.dm.autosave', $_POST['text']);
+        if(file_exists('documents/'.$_POST['filename'].'.dm.autosave')){
+            $mtime = filemtime('documents/'.$_POST['filename'].'.dm.autosave');
+            $time = time();
+            $diff = $time-$mtime;
+            if($diff > 60*5)
+                file_put_contents('documents/'.$_POST['filename'].'.dm.autosave', $_POST['text']);
+        }else{
+            file_put_contents('documents/'.$_POST['filename'].'.dm.autosave', $_POST['text']);
+        }
     }
 }

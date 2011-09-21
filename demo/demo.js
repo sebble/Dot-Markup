@@ -79,6 +79,7 @@ $(function(){
                 $('#html').html(data);
                 MathJax.Hub.Typeset();
                 ToC2();
+                SyntaxHighlighter.highlight();
                 scrollImg();
                 //$( "#outline" ).fracs( 'outline', 'redraw' );
             }, 'html');
@@ -89,6 +90,7 @@ $(function(){
         $('#html').html(data);
         MathJax.Hub.Typeset();
         ToC2();
+        SyntaxHighlighter.highlight();
     //    prepareOutline();
     }, 'html');
 });

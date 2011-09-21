@@ -32,9 +32,22 @@ $(function(){
             $("<a />").text("Load").css({cursor:'pointer'})
             .click(function(){
                 //console.log($('#filename').val()+'.dm');
-                var fileName = 'documents/'+$('#filename').val()+'.dm';
-                var string = $.ajax({type: "GET", url: fileName, async: false}).responseText;
-                $('#source').val(string).keyup();
+                var fileName = 'documents/'+$('#filename').val()+'.dm.autosave';
+                $.ajax({type: "GET", url: fileName, async: false,
+                statusCode: {
+                    404: function(){
+                        fileName = 'documents/'+$('#filename').val()+'.dm';
+                        
+                        $.ajax({type: "GET", url: fileName, async: false,
+                        success: function(data){
+                            $('#source').val(data).keyup();
+                        }});
+                    }
+                }, success: function(data){
+                    $('#source').val(data).keyup();
+                }});
+                //console.log(autostring);
+                //$('#source').val(string).keyup();
             })
         ).submit(function(e){
             e.preventDefault();
@@ -61,7 +74,7 @@ $(function(){
         window.updateTimer = setTimeout(function(){
             //$('#html').html($('#source').val());
             //console.log($('#source').val());
-            $.post('demo.php', {text:$('#source').val()}, function(data){
+            $.post('demo.php', {text:$('#source').val(),filename:$('#filename').val()}, function(data){
                 //console.log(data);
                 $('#html').html(data);
                 MathJax.Hub.Typeset();

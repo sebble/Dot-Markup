@@ -7,4 +7,11 @@ if (isset($_POST['text'])) {
     //echo "Hello World";
     //echo json_encode(array('html'=>wiki_parse_string($_POST['text'])));
     echo wiki_parse_string($_POST['text']);
+    
+    if (isset($_POST['filename'])) {
+        
+        $_POST['filename'] = preg_replace('#[^a-z0-9_\.\-]#i','',$_POST['filename']);
+    
+        file_put_contents('documents/'.$_POST['filename'].'.dm.autosave', $_POST['text']);
+    }
 }

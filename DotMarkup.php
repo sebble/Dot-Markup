@@ -33,7 +33,7 @@ class DotMarkup {
     function parseString($source) {
     
         $this->filename = '';
-        $this->source = $filename;
+        $this->source = $source;
         $this->_parseDocument();
     }
     

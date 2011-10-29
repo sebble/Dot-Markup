@@ -125,6 +125,7 @@ $DM_CONFIG_EXTRA = array(
         array('___','&nbsp;'),
         array('£','&pound;'),
         array('\\\\','<br />'),
+        array('//(?=\r?\n)','<br />',true),
         array('\b1/2\b','&frac12;',true),
         array('\b1/4\b','&frac14;',true),
         array('\b3/4\b','&frac34;',true),

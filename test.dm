@@ -22,32 +22,97 @@ with
 
 #i.c
   "caption"
-||~5 cell || th !!
- !!||
+||~2 cell !!<.c hello! !!
+||< left ||>^2 right ||#rid
+||=.c center ||
+|| really really long || !!.rcls
 
+
+<style>
+.lower-roman {
+    list-style-type: lower-roman;
+}
+.upper-roman {
+    list-style-type: upper-roman;
+}
+.decimal {
+    list-style-type: decimal;
+}
+.lower-alpha {
+    list-style-type: lower-alpha;
+}
+.upper-alpha {
+    list-style-type: upper-alpha;
+}
+.lower-greek {
+    list-style-type: lower-greek;
+}
+.upper-greek {
+    list-style-type: upper-greek;
+}
+.cjk-ideographic {
+    list-style-type: cjk-ideographic;
+}
+.circle {
+    list-style-type: circle;
+}
+.question {
+    list-style-type: square;
+}
+.important {
+    color: #f00;
+}
+</style>
 
 #i.cl
- - list
- - list
- + list
-  - list
- >.cls item
- > item
+ - dash
+ + plus
+ >.cls arrow
  # numbered
- ## numbered
- * normal
  *#id normal
  ? special
  ~ approx
- . item
- . item
+ . dot
  ! impo##rta##nt
- i roman
- i roman
- I roman
- @ bullet [html](link) [html](link) [[link:#?asd&d link## te##xt]] alphaa.1/2 & (12x7). b
+ * bullet [html](link) [html](link) [[link:#?asd&d link## te##xt]] alphaa.1/2 & (12x7). b
  o bullet
  
- ; DT
-  : DD
-  : DD
+ 1 decimal
+ 1 decimal
+ 1 decimal
+ 
+ a alpha
+ a alpha
+ a alpha
+ 
+ A Alpha
+ A Alpha
+ A Alpha
+ 
+ i roman
+ i roman
+ i roman
+ 
+ I Roman
+ I Roman
+ I Roman
+ 
+ y greek
+ y greek
+ y greek
+ 
+ Y Greek
+ Y Greek
+ Y Greek
+ 
+#pre_id.pcls.pcls
+ ;#id DT
+  :.cls DD
+  :#id.cls DD
+  
+para1
+
+.cls para2
+
+#id para3
+

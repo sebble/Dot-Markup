@@ -4,6 +4,10 @@
  Notes:
    o  move parser and config into sys dir
    o  extend parser class to interface class in here
+ 
+ Bugs:
+   o  uses str_replace for completed transforms
+     -> should use preg_replace_callback instead
 */
 
 class DotMarkup {
@@ -39,15 +43,15 @@ class DotMarkup {
     
         $this->_groups = array();
         $string = $this->source;
-        echo "--------- Original ---------\n";
-        echo $string . "\n\n";
+        #echo "--------- Original ---------\n";
+        #echo $string . "\n\n";
         $string = $this->_parseGroups($string);
-        echo "--------- Groups ---------\n";
-        echo $string . "\n\n";
+        #echo "--------- Groups ---------\n";
+        #echo $string . "\n\n";
         $string = $this->_parseBlock($string);
         $string = $this->_restoreProcessed($string);
-        echo "--------- Restored ---------\n";
-        echo $string . "\n\n";
+        #echo "--------- Restored ---------\n";
+        #echo $string . "\n\n";
         
         $this->html = $string;
     }
@@ -55,23 +59,23 @@ class DotMarkup {
     function _parseBlock($string) {
     
         $string = $this->_parseBlocks($string);
-        echo "--------- Blocks ---------\n";
-        echo $string . "\n\n";
+        #echo "--------- Blocks ---------\n";
+        #echo $string . "\n\n";
         $string = $this->_parseLines($string);
-        echo "--------- Lines ---------\n";
-        echo $string . "\n\n";
+        #echo "--------- Lines ---------\n";
+        #echo $string . "\n\n";
         $string = $this->_parseTables($string);
-        echo "--------- Tables ---------\n";
-        echo $string . "\n\n";
+        #echo "--------- Tables ---------\n";
+        #echo $string . "\n\n";
         $string = $this->_parseDefinitionLists($string);
-        echo "--------- Definition Lists ---------\n";
-        echo $string . "\n\n";
+        #echo "--------- Definition Lists ---------\n";
+        #echo $string . "\n\n";
         $string = $this->_parseLists($string);
-        echo "--------- Lists ---------\n";
-        echo $string . "\n\n";
+        #echo "--------- Lists ---------\n";
+        #echo $string . "\n\n";
         $string = $this->_parseParagraphs($string);
-        echo "--------- Paragraphs ---------\n";
-        echo $string . "\n\n";
+        #echo "--------- Paragraphs ---------\n";
+        #echo $string . "\n\n";
         
         return $string;
     }
@@ -175,51 +179,145 @@ class DotMarkup {
         $pre_id  = '(?:(?:(\#[a-z_][a-z0-9_\-]*)|((?:\.[a-z_][a-z0-9_\-]*)+)|(\#[a-z_][a-z0-9_\-]*)((?:\.[a-z_][a-z0-9_\-]*)+))\r?\n)?';
         $re_cap = '(?:^[ \t]*"([^\r\n]+)"$\r?\n)?';
         $re_id  = '(?:\#[a-z_][a-z0-9_\-]*)?(?:(?:\.[a-z_][a-z0-9_\-]*)+)?';
-        $re_tr  = "^[ \t]*(?:\|\||!!)[<>=~]?\d*{$re_id}(?:.*?(?:\|\||!!){$re_id})+$\r?\n";
-        $regex  = "^{$pre_id}{$re_cap}((?:{$re_tr})+)";
+        $re_id2 = '(\#[a-z_][a-z0-9_\-]*)?((?:\.[a-z_][a-z0-9_\-]*)+)?';
+        $re_th  = "^[ \t]*(?:\|\||!!)[<>=]?(?:[\^~]\d+)?{$re_id}(?:.*?!!{$re_id2})+$\r?\n";
+        $re_tr  = "^[ \t]*(?:\|\||!!)[<>=]?(?:[\^~]\d+)?{$re_id}(?:.*?\|\|{$re_id})+$\r?\n";
+        $re_tr2 = "^[ \t]*(?:\|\||!!)[<>=]?(?:[\^~]\d+)?{$re_id}(?:.*?(?:\|\|||!!){$re_id2})+$\r?\n";
+        $re_td  = "(\|\||!!)([<>=]?)(?:~(\d+))?(?:\^(\d+))?{$re_id2}((?:[^!\|]|!(?!!)|\|(?!\|))+)";
+        $regex  = "^{$pre_id}{$re_cap}((?:{$re_th})?)((?:{$re_tr})+)((?:{$re_th})?)";
         
         preg_match_all("#$regex#mi", $string, $match, PREG_SET_ORDER);
         
+        #print_r($match);
+        
         foreach($match as $t) {
             $t[0] = rtrim($t[0]); ## restore trailing newline
-            #$id   = ($b[1] == '') ? '' : ' id="'.substr($b[1],1).'"' ; 
-            #$id   = ($b[2] == '') ? $id : $id.' class="'.
-            #  str_replace('.',' ',substr($b[2],1)).'"' ; 
-            ## is this a singleton? (<hr />)
-            ## note: isset instead of isTrue to avoid notice when not defined
-            #$html =  (isset($line[2])) ? "<{$line[1]}{$id} />" :
-            #    "<{$line[1]}{$id}>" . $this->_parseInline($b[3]) . "</{$line[1]}>" ;
-            $this->_extractProcessed($t[0], "..table..", $string);
+            
+            $_id = $t[1].$t[3];
+            $_cls = $t[2].$t[4];
+            $id   = ($_id == '') ? '' : ' id="'.substr($_id,1).'"' ;
+            $id   = ($_cls == '') ? $id : $id.' class="'.
+              str_replace('.',' ',substr($_cls,1)).'"' ;
+            
+            $html = "<table{$id}>\n";
+            if ($t[5] != '') $html .= "<caption>".$this->_parseInline($t[5])."</caption>\n";
+            if ($t[6] != '') {
+                $id   = ($t[7] == '') ? '' : ' id="'.substr($t[7],1).'"' ;
+                $id   = ($t[8] == '') ? $id : $id.' class="'.
+                  str_replace('.',' ',substr($t[8],1)).'"' ;
+                preg_match_all("#{$re_td}#mi", $t[6], $cs, PREG_SET_ORDER);
+                array_pop($cs);
+                #print_r($cs);
+                $html .= "<thead><tr{$id}>";
+                foreach ($cs as $c) {
+                    ### This version doesn't have alignment!
+                    $id   = ($c[5] == '') ? '' : ' id="'.substr($c[5],1).'"' ;
+                    $id   = ($c[6] == '') ? $id : $id.' class="'.
+                      str_replace('.',' ',substr($c[6],1)).'"' ;
+                    $cols = (intval($c[3])>0) ? " colspan=\"{$c[3]}\"" : '' ;
+                    $rows = (intval($c[4])>0) ? " rowspan=\"{$c[4]}\"" : '' ;
+                    
+                    $html .= "<td{$id}{$cols}{$rows}>".$this->_parseInline(trim($c[7]))."</td>";
+                    
+                }
+                $html .= "</tr></thead>\n";
+            }
+            ## split rows
+            preg_match_all("#{$re_tr2}#mi", $t[9], $trs, PREG_SET_ORDER);
+            $html .= "<tbody>\n";
+            foreach ($trs as $tr) {
+                $id   = (!isset($tr[1])||$tr[1]=='') ? '' : ' id="'.substr($tr[1],1).'"' ;
+                $id   = (!isset($tr[2])) ? $id : $id.' class="'.
+                  str_replace('.',' ',substr($tr[2],1)).'"' ;
+                preg_match_all("#{$re_td}#mi", $tr[0], $cs, PREG_SET_ORDER);
+                array_pop($cs);
+                #print_r($cs);
+                $html .= "    <tr{$id}>";
+                foreach ($cs as $c) {
+                    ### This version doesn't have alignment!
+                    ### or <th> cells!
+                    $id   = ($c[5] == '') ? '' : ' id="'.substr($c[5],1).'"' ;
+                    $id   = ($c[6] == '') ? $id : $id.' class="'.
+                      str_replace('.',' ',substr($c[6],1)).'"' ;
+                    $cols = (intval($c[3])>0) ? " colspan=\"{$c[3]}\"" : '' ;
+                    $rows = (intval($c[4])>0) ? " rowspan=\"{$c[4]}\"" : '' ;
+                    
+                    $html .= "<td{$id}{$cols}{$rows}>".$this->_parseInline(trim($c[7]))."</td>";
+                    
+                }
+                $html .= "</tr>\n";
+            }
+            $html .= "</tbody>\n";
+            if ($t[10] != '') {
+                $id   = ($t[11] == '') ? '' : ' id="'.substr($t[11],1).'"' ;
+                $id   = ($t[12] == '') ? $id : $id.' class="'.
+                  str_replace('.',' ',substr($t[12],1)).'"' ;
+                preg_match_all("#{$re_td}#mi", $t[10], $cs, PREG_SET_ORDER);
+                array_pop($cs);
+                #print_r($cs);
+                $html .= "<tfoot><tr{$id}>";
+                foreach ($cs as $c) {
+                    ### This version doesn't have alignment!
+                    $id   = ($c[5] == '') ? '' : ' id="'.substr($c[5],1).'"' ;
+                    $id   = ($c[6] == '') ? $id : $id.' class="'.
+                      str_replace('.',' ',substr($c[6],1)).'"' ;
+                    $cols = (intval($c[3])>0) ? " colspan=\"{$c[3]}\"" : '' ;
+                    $rows = (intval($c[4])>0) ? " rowspan=\"{$c[4]}\"" : '' ;
+                    
+                    $html .= "<td{$id}{$cols}{$rows}>".$this->_parseInline(trim($c[7]))."</td>";
+                    
+                }
+                $html .= "</tr></tfoot>\n";
+            }
+            
+            $html .= "</table>";
+            $this->_extractProcessed($t[0], $html, $string);
         }
         
         return $string;
     }
     
-    function _parseDefinitionLists($string) {
+    function _parseDefinitionLists($string) { ///////////// TO DO
     
         ## prepare regex
         $pre_id  = '(?:(?:(\#[a-z_][a-z0-9_\-]*)|((?:\.[a-z_][a-z0-9_\-]*)+)|(\#[a-z_][a-z0-9_\-]*)((?:\.[a-z_][a-z0-9_\-]*)+))\r?\n)?';
         $re_id  = '(?:\#[a-z_][a-z0-9_\-]*)?(?:(?:\.[a-z_][a-z0-9_\-]*)+)?';
-        $re_dli = "^[ \t]+[:;]+:?{$re_id}[ \t]+[^\r\n]*$\r?\n";
+        $re_id2  = '(\#[a-z_][a-z0-9_\-]*)?((?:\.[a-z_][a-z0-9_\-]*)+)?';
+        $re_dli = "^[ \t]+[:;]{$re_id}[ \t]+[^\r\n]*$\r?\n";
+        $re_dli2 = "^[ \t]+([:;]){$re_id2}[ \t]+([^\r\n]*)$\r?\n";
         $regex  = "^{$pre_id}((?:{$re_dli})+)";
         
         preg_match_all("#$regex#mi", $string, $match, PREG_SET_ORDER);
         
-        foreach($match as $l) {
-            $l[0] = rtrim($l[0]); ## restore trailing newline
-            #$id   = ($b[1] == '') ? '' : ' id="'.substr($b[1],1).'"' ;
-            #$id   = ($b[2] == '') ? $id : $id.' class="'.
-            #  str_replace('.',' ',substr($b[2],1)).'"' ;
-            ## is this a singleton? (<hr />)
-            ## note: isset instead of isTrue to avoid notice when not defined
-            #$html =  (isset($line[2])) ? "<{$line[1]}{$id} />" :
-            #    "<{$line[1]}{$id}>" . $this->_parseInline($b[3]) . "</{$line[1]}>" ;
-            $this->_extractProcessed($l[0], "..defn list..", $string);
+        foreach($match as $dl) {
+            $dl[0] = rtrim($dl[0]); ## restore trailing newline
+            
+            $_id = $dl[1].$dl[3];
+            $_cls = $dl[2].$dl[4];
+            $id   = ($_id == '') ? '' : ' id="'.substr($_id,1).'"' ;
+            $id   = ($_cls == '') ? $id : $id.' class="'.
+              str_replace('.',' ',substr($_cls,1)).'"' ;
+            
+            $html = "<dl{$id}>\n";
+            ## split lines
+            preg_match_all("#{$re_dli2}#mi", $dl[5], $ml, PREG_SET_ORDER);
+            
+            foreach($ml as $dli) {
+                $id   = ($dli[2] == '') ? '' : ' id="'.substr($dli[2],1).'"' ;
+                $id   = ($dli[3] == '') ? $id : $id.' class="'.
+                  str_replace('.',' ',substr($dli[3],1)).'"' ;
+                $dty = ($dli[1] == ';') ? 'dt' : 'dd' ;
+                $html .= "    <{$dty}{$id}>" . $this->_parseInline($dli[4]) . "</{$dty}>\n" ;
+                
+            }
+            
+            $html .= "</dl>";
+            $this->_extractProcessed($dl[0], $html, $string);
         }
         return $string;
     }
     
-    function _parseLists($string) {
+    function _parseLists($string) { ///////////// TO DO
     
         ## New version of list parser will allow multiple symbols
         ## Symbols may optionally add a class to the list item
@@ -231,22 +329,47 @@ class DotMarkup {
         ## includes A-Z so that symbols can be case sensitive
         $pre_id  = '(?:(?:(\#[a-zA-Z_][a-zA-Z0-9_\-]*)|((?:\.[a-zA-Z_][a-zA-Z0-9_\-]*)+)|(\#[a-zA-Z_][a-zA-Z0-9_\-]*)((?:\.[a-zA-Z_][a-zA-Z0-9_\-]*)+))\r?\n)?';
         $re_id  = '(?:\#[a-zA-Z_][a-zA-Z0-9_\-]*)?(?:(?:\.[a-zA-Z_][a-zA-Z0-9_\-]*)+)?';
+        $re_id2 = '(\#[a-zA-Z_][a-zA-Z0-9_\-]*)?((?:\.[a-zA-Z_][a-z0-9A-Z_\-]*)+)?';
         #$pre_id = "(?:({$re_id})\r?\n)?";
         $re_li  = "^[ \t]+[{$re_symb}]+:?{$re_id}[ \t]+[^\r\n]*$\r?\n";
+        $re_li2 = "^[ \t]+([{$re_symb}]+):?{$re_id2}[ \t]+([^\r\n]*)$\r?\n";
         $regex  = "^{$pre_id}((?:{$re_li})+)";
         
         preg_match_all("#$regex#m", $string, $match, PREG_SET_ORDER);
         
         foreach($match as $l) {
             $l[0] = rtrim($l[0]); ## restore trailing newline
-            #$id   = ($b[1] == '') ? '' : ' id="'.substr($b[1],1).'"' ;
-            #$id   = ($b[2] == '') ? $id : $id.' class="'.
-            #  str_replace('.',' ',substr($b[2],1)).'"' ;
-            ## is this a singleton? (<hr />)
-            ## note: isset instead of isTrue to avoid notice when not defined
-            #$html =  (isset($line[2])) ? "<{$line[1]}{$id} />" :
-            #    "<{$line[1]}{$id}>" . $this->_parseInline($b[3]) . "</{$line[1]}>" ;
-            $this->_extractProcessed($l[0], "..list..", $string);
+            
+            $_id = $l[1].$l[3];
+            $_cls = $l[2].$l[4];
+            $id   = ($_id == '') ? '' : ' id="'.substr($_id,1).'"' ;
+            $id   = ($_cls == '') ? $id : $id.' class="'.
+              str_replace('.',' ',substr($_cls,1)).'"' ;
+            
+            ## This version only allows single depth lists!
+            
+            ## split lines
+            preg_match_all("#{$re_li2}#mi", $l[5], $ml, PREG_SET_ORDER);
+            
+            $html = "<ul{$id}>\n";
+            foreach($ml as $li) {
+                $lty = 'ul'; ## this in wrong place...
+                foreach ($this->config['lists'] as $cl) {
+                    if ($cl[0] == $li[1]) {
+                        $lty = $cl[1];
+                        if (isset($cl[2])) $li[3] .= '.'.$cl[2];
+                    }
+                }
+                
+                $id   = ($li[2] == '') ? '' : ' id="'.substr($li[2],1).'"' ;
+                $id   = ($li[3] == '') ? $id : $id.' class="'.
+                  str_replace('.',' ',substr($li[3],1)).'"' ;
+                
+                $html .= "    <li{$id}>" . $this->_parseInline($li[4]) . "</li>\n" ;
+            }
+            $html .= "</ul>";
+            
+            $this->_extractProcessed($l[0], $html, $string);
         }
         
         return $string;
@@ -436,6 +559,7 @@ $Doc->config = array(
     'groups' => array(
         array('{{{','}}}','protect'),
         array('<script','</script>','protectall'),
+        array('<style','</style>','protectall'),
         array('<!--','-->','remove'),
         array('[[[',']]]','block'),
         array('<<<','>>>','inline')
@@ -458,17 +582,23 @@ $Doc->config = array(
     ),
     'lists'=>array(
         array('*','ul'),
-        array('#','ol'),
+        array('#','ol','decimal'),
+        array('1','ol','decimal'),
         array('+','ul'),
         array('-','ul'),
         array('>','ul'),
         array('.','ul'),
         array('~','ul'),
-        array('o','ul'),
+        array('o','ul','circle'),
+        array('o','ul','circle'),
         array('!','ul','important'),
         array('?','ul','question'),
-        array('i','ol','roman'),
-        array('I','ol','roman-caps')
+        array('i','ol','lower-roman'),
+        array('I','ol','upper-roman'),
+        array('a','ol','lower-alpha'),
+        array('A','ol','upper-alpha'),
+        array('y','ol','lower-greek'),
+        array('Y','ol','upper-greek')
     ),
     'symbols'=>array(
         array('&(?!\#\d+;|[a-zA-Z0-9]+;)','&amp;',true),

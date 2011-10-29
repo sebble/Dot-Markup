@@ -249,8 +249,8 @@ class DotMarkup {
             }
             $html .= "</tbody>\n";
             if ($t[10] != '') {
-                $id   = ($t[11] == '') ? '' : ' id="'.substr($t[11],1).'"' ;
-                $id   = ($t[12] == '') ? $id : $id.' class="'.
+                @$id   = ($t[11] == '') ? '' : ' id="'.substr($t[11],1).'"' ;
+                @$id   = ($t[12] == '') ? $id : $id.' class="'.
                   str_replace('.',' ',substr($t[12],1)).'"' ;
                 preg_match_all("#{$re_td}#mi", $t[10], $cs, PREG_SET_ORDER);
                 array_pop($cs);
@@ -441,7 +441,7 @@ class DotMarkup {
                         if (!isset($format[$i])) $format[$i] = '';
                     }
                     
-                    $html = call_user_func_array('sprintf', $format);
+                    @$html = call_user_func_array('sprintf', $format);
                     $html = preg_replace("# [a-z\-]+=\"\"(?=[ >])#", '', $html);
                     $this->_extractProcessed($c[0], $html, $string);
                 }

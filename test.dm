@@ -75,7 +75,7 @@ with
  . dot
  ! impo##rta##nt
  * bullet [html](link) [html](link) [[link:#?asd&d link## te##xt]] alphaa.1/2 & (12x7). b
- o bullet
+ o bullet http://www.google.com
  
  1 decimal
  1 decimal

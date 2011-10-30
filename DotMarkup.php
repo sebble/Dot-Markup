@@ -430,7 +430,7 @@ class DotMarkup {
                     
                     $format = array();
                     $format[0] = $complex[1];
-                    $format[1] = (isset($c[3])) ? $this->_parseInline($c[3]) : '';
+                    $format[1] = (isset($c[3])) ? /*$this->_parseInline(*/$c[3]/*)*/ : '';
                     $format[2] = (isset($c[5])) ? $this->_parseInline($c[5]) : '';
                     $format[3] = (isset($c[6])) ? $this->_parseInline($c[6]) : '';
                     $format[4] = $id;

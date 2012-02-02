@@ -1,0 +1,164 @@
+
+/* Useful functions */
+{
+  function merge(obj1,obj2){
+    for(var attr in obj2){ obj1[attr] = obj2[attr]; }
+    return obj1;
+  }
+function flatten(array){
+    var flat = [];
+    for (var i = 0, l = array.length; i < l; i++){
+        var type = Object.prototype.toString.call(array[i]).split(' ').pop().split(']').shift().toLowerCase();
+        if (type) { flat = flat.concat(/^(array|collection|arguments|object)$/.test(type) ? flatten(array[i]) : array[i]); }
+    }
+    return flat;
+}
+
+  /* Parse into HTML*/
+  function html(d) {
+    console.log("---------------------");
+    var html = "";
+    for (i in d) {
+        //console.log(d[i].type);
+        switch(d[i].type){
+            case "heading":
+                html = html + "<h"+d[i].level+">" + d[i].text + "</h"+d[i].level+">\n";
+                break;
+            case "block":
+                html = html + "<"+d[i].tag+">" + d[i].text + "</"+d[i].tag+">\n";
+                break;
+            case "newline":
+                //d.splice(i,1);
+                //console.log(d);
+            default:
+        }
+    }
+    
+    console.log(html);
+
+    return d;
+  }
+}
+
+/* Document structure */
+
+html
+  = d:doc  {return html(d)}
+
+doc
+  = block+
+
+block
+  = heading
+  / para
+  / nl
+  / blockblock
+
+
+
+
+/* Basic classes */
+
+sp
+  = [ \t]+
+
+nl
+  = sp? [\n]   {return {type:"newline"}}
+
+text
+  = t:[A-Za-z\.] s:text?  { return t+s; }
+  / t:[ \t] s:text   { return t+s; }
+
+mtext
+  = t:[A-Za-z\.] s:mtext?  { return t+s; }
+  / t:[ \t\n] s:mtext   { return t+s; }
+
+
+
+
+/* Important classes */
+
+prop
+  = i:id c:class? d:data? sp   {return {id:i,classes:c,data:d}}
+  / c:class d:data? sp         {return {classes:c,data:d}}
+  / d:data sp                  {return {data:d}}
+
+propnsp
+  = i:id c:class? d:data?      {return {id:i,classes:c,data:d}}
+  / c:class d:data?            {return {classes:c,data:d}}
+  / d:data                     {return {data:d}}
+
+id
+  = i:([#][a-z0-9]+)    {return i[1].join("")}
+
+class
+  = c:([\.][a-z0-9]+)+  {return c.map(function(x) { return x[1].join("") });}
+
+data
+  = d:([:][a-z0-9]+[=][a-z0-9]+)+  {var o={}; for(i in d){o[d[i][1].join("")]=d[i][3].join("")}; return o;}
+
+
+
+
+/* Block element: Heading */
+
+heading
+  = sp? h:leq p:prop? sp? t:head { return {properties:p,type:"heading", level:h, text:t} }
+
+leq
+  = h:[=]+  { return h.length }
+
+req
+  = sp? [=]+ nl
+
+head
+  = h:htext req  { return h }
+  / h:htext nl  { return h }
+
+htext
+  = t:[A-Za-z] s:htext?  { return t+s; }
+  / t:[=]   s:htext   { return t+s; }
+  / t:[ \t] s:htext   { return t+s; }
+
+
+
+
+/* Block element: Paragraph */
+
+para
+  = p:prop? t:ptext  {return {properties:p, type:"paragraph", text:t}}
+
+ptext
+  = sp? t:text nl nl       {return t}
+  / sp? t:text nl p:ptext  {return t + " " + p}
+
+
+
+/* Block type: block */
+
+blockblock
+  = blockpre
+  / blockaddr
+
+blocktext
+  = t:((mtext [\n])+)  {return t.map(function(x){return x[0]+x[1]}).join("")}
+
+/* Block block element: Pre */
+
+blockaddr
+  = ">>>" p:propnsp? [\n] t:blocktext ">>>" [\n] {return {properties:p, type:"block", text:t,tag:"address"}}
+
+/* Block block element: Pre */
+
+blockpre
+  = ":::" p:propnsp? [\n] t:blocktext ":::" [\n] {return {properties:p, type:"block", text:t,tag:"pre"}}
+
+
+
+
+
+
+
+
+
+

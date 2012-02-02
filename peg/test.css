@@ -1,0 +1,23 @@
+
+ol {
+    counter-reset: list;
+}
+
+li {
+    margin: 0.5em;
+}
+
+li:before {
+    font-weight: bold;
+    counter-increment: list;
+    content: counter(list);
+    
+    font-family: verdana;
+    color: #fff;
+    background-color: #369;
+    font-size: 12px;
+    padding: 2px 3px;
+    border-radius: 3px;
+    
+    margin: 0 0.5em;
+}

@@ -1,6 +1,13 @@
 
+/********************/
 /* Useful functions */
+/********************/
+
 {
+/*-------------*/
+/* Just useful */
+/*-------------*/
+
   function merge(obj1,obj2){
     for(var attr in obj2){ obj1[attr] = obj2[attr]; }
     return obj1;
@@ -13,6 +20,19 @@ function flatten(array){
     }
     return flat;
 }
+function isArray(o) {
+  return Object.prototype.toString.call(o) === '[object Array]';
+}
+
+/*----------------*/
+/* Actual parsers */
+/*----------------*/
+
+/* include LaTeX too? */
+
+/* - - -*/
+/* HTML */
+/* - - -*/
 
   /* Parse into HTML*/
   function html(d) {
@@ -20,12 +40,15 @@ function flatten(array){
     var html = "";
     for (i in d) {
         //console.log(d[i].type);
+        //console.log(d[i]);
         switch(d[i].type){
             case "heading":
-                html = html + "<h"+d[i].level+">" + d[i].text + "</h"+d[i].level+">\n";
+                var s = cid(d[i].properties);
+                html = html + "<h"+d[i].level+s+">" + d[i].text + "</h"+d[i].level+">\n";
                 break;
             case "block":
-                html = html + "<"+d[i].tag+">" + d[i].text + "</"+d[i].tag+">\n";
+                var s = cid(d[i].properties);
+                html = html + "<"+d[i].tag+s+">" + d[i].text + "</"+d[i].tag+">\n";
                 break;
             case "newline":
                 //d.splice(i,1);
@@ -38,9 +61,30 @@ function flatten(array){
 
     return d;
   }
+
+  /* Format class, id, data */
+  function cid(props) {
+    
+    var html = "";
+    if (props.id != ""  &&  props.id != undefined) {
+        html = html + " id=\""+props.id+"\"";
+    }
+    if (isArray(props.classes)) {
+        html = html + " class=\""+props.classes.join(" ")+"\"";
+    }
+    if (props.data != ""  &&  props.data != undefined) {
+        //console.log(props.data);
+        for (d in props.data) {
+            html = html + " data-"+d+"=\""+props.data[d]+"\"";
+        }
+    }
+    return html;
+  }
 }
 
+/*--------------------*/
 /* Document structure */
+/*--------------------*/
 
 html
   = d:doc  {return html(d)}
@@ -57,7 +101,9 @@ block
 
 
 
+/*---------------*/
 /* Basic classes */
+/*---------------*/
 
 sp
   = [ \t]+
@@ -70,13 +116,17 @@ text
   / t:[ \t] s:text   { return t+s; }
 
 mtext
-  = t:[A-Za-z\.] s:mtext?  { return t+s; }
-  / t:[ \t\n] s:mtext   { return t+s; }
+  = t:[A-Za-z\. \t] s:mtext?  { return t+s; }
+  / t:[\n] s:mtext   { return t+s; }
 
 
 
 
+/*-------------------*/
 /* Important classes */
+/*-------------------*/
+
+/* various text types too? */
 
 prop
   = i:id c:class? d:data? sp   {return {id:i,classes:c,data:d}}
@@ -99,8 +149,11 @@ data
 
 
 
-
+/* - - - - - - - - - - - -*/
 /* Block element: Heading */
+/* - - - - - - - - - - - -*/
+
+/* should be a block-line element? */
 
 heading
   = sp? h:leq p:prop? sp? t:head { return {properties:p,type:"heading", level:h, text:t} }
@@ -122,8 +175,9 @@ htext
 
 
 
-
+/*--------------------------*/
 /* Block element: Paragraph */
+/*--------------------------*/
 
 para
   = p:prop? t:ptext  {return {properties:p, type:"paragraph", text:t}}
@@ -133,25 +187,69 @@ ptext
   / sp? t:text nl p:ptext  {return t + " " + p}
 
 
-
+/*-------------------*/
 /* Block type: block */
+/*-------------------*/
 
 blockblock
   = blockpre
   / blockaddr
+  / blockbq
+  / blockpre2
 
 blocktext
   = t:((mtext [\n])+)  {return t.map(function(x){return x[0]+x[1]}).join("")}
 
-/* Block block element: Pre */
+/* - - - - - - - - - - - - - - -*/
+/* Block block element: Address */
+/* - - - - - - - - - - - - - - -*/
 
 blockaddr
-  = ">>>" p:propnsp? [\n] t:blocktext ">>>" [\n] {return {properties:p, type:"block", text:t,tag:"address"}}
+  = ">>>" p:propnsp? [\n] t:mtext [\n] ">>>" [\n] {return {properties:p, type:"block", text:t,tag:"address"}}
 
+/* - - - - - - - - - - - - -*/
 /* Block block element: Pre */
+/* - - - - - - - - - - - - -*/
 
 blockpre
-  = ":::" p:propnsp? [\n] t:blocktext ":::" [\n] {return {properties:p, type:"block", text:t,tag:"pre"}}
+  = ":::" p:propnsp? [\n] t:mtext [\n] ":::" [\n] {return {properties:p, type:"block", text:t,tag:"pre"}}
+
+/* - - - - - - - - - - - - - - - - */
+/* Block block element: Blockquote */
+/* - - - - - - - - - - - - - - - - */
+
+blockbq
+  = "\"\"\"" p:propnsp? [\n] t:mtext [\n] "\"\"\"" [\n] {return {properties:p, type:"block", text:t,tag:"blockquote"}}
+
+/* - - - - - - - - - - - - - */
+/* Block block element: Pre2 */
+/* - - - - - - - - - - - - - */
+
+blockpre2
+  = "```" p:propnsp? [\n] t:mtext [\n] "```" [\n] {return {properties:p, type:"block", text:t,tag:"pre"}}
+
+
+
+
+/*------------------*/
+/* Block type: line */
+/*------------------*/
+
+/* headings? hr? legend? */
+
+
+/*-------------------*/
+/* Block type: lists */
+/*-------------------*/
+
+/* symbol, ul/ol, auto-class */
+
+
+
+
+
+
+
 
 
 

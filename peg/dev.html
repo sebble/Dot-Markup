@@ -1,3 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DotMarkup Dev Page</title>
+  
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  <meta name="author" content="Sebastian Mellor &lt;sebble@sebble.com&gt;">
+  
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+  <script src="peg-0.6.2.min.js"></script>
+  <script>
+  
+function DumpObjectIndented(obj, indent)
+{
+  var result = "";
+  if (indent == null) indent = "";
+
+  for (var property in obj)
+  {
+    var value = obj[property];
+    if (typeof value == 'string')
+      value = "'" + value + "'";
+    else if (typeof value == 'object')
+    {
+      if (value instanceof Array)
+      {
+        // Just let JS convert the Array to a string!
+        value = "[ " + value + " ]";
+      }
+      else
+      {
+        // Recursive dump
+        // (replace "  " by "\t" or something else if you prefer)
+        var od = DumpObjectIndented(value, indent + "  ");
+        // If you like { on the same line as the key
+        //value = "{\n" + od + "\n" + indent + "}";
+        // If you prefer { and } to be aligned
+        value = "\n" + indent + "{\n" + od + "\n" + indent + "}";
+      }
+    }
+    result += indent + "'" + property + "' : " + value + ",\n";
+  }
+  return result.replace(/,\n$/, "");
+}
+
+  $(function(){
+    var timer;
+    var parser;
+    $('#peg').keyup(function(e){
+        clearTimeout(timer);
+        timer = setTimeout(function(){
+            parser = PEG.buildParser($('#peg').val());
+            parser.parse($('#dotmarkup').val()+"\n\n");
+        }, 1000);
+    });
+    $('#dotmarkup').keyup(function(e){
+        parser.parse($('#dotmarkup').val()+"\n\n");
+        //$('#json').val(JSON.stringify(parser.parse($('#dotmarkup').val())),null,4);
+    });
+    $('textarea').focus(function(){
+        $('.box').width('20%');
+        $(this).parent().width('40%');
+        if ($(this).parent().hasClass('code')) {
+            $(this).siblings().height('10%');
+            $(this).height('80%');
+        }
+    });
+    parser = PEG.buildParser($('#peg').val());
+    parser.parse($('#dotmarkup').val()+"\n\n");
+  });
+  </script>
+  <style>
+    body, html
+        {margin:0;padding:0;height:100%;}
+    textarea
+        {border:none;height:100%;outline:none;
+         padding:0;margin:0;display:block;width:100%;}
+    .box
+        {float:left;width:25%;position:relative;height:100%;}
+    #peg
+        {background-color:#dff;height:60%;}
+    #html2
+        {background-color:#fdd;height:20%;}
+    #latex2
+        {background-color:#ddf;height:20%;}
+    #dotmarkup
+        {background-color:#ffd;}
+    #json
+        {background-color:#fdf;}
+    #html
+        {background-color:#ddf;height:50%;}
+    #latex
+        {background-color:#dfd;height:50%;}
+  </style>
+</head>
+<body>
+  <!-- 4 panes -->
+  <div class="box code">
+    <textarea id="peg">
 /********************/
 /* Useful functions */
 /********************/
@@ -42,15 +143,15 @@ function isArray(o) {
         //console.log(d[i]);
         switch(d[i].type){
             case "heading":
-                var s = html_cid(d[i].properties);
+                var s = cid(d[i].properties);
                 html = html + "<h"+d[i].level+s+">" + d[i].text + "</h"+d[i].level+">\n";
                 break;
             case "block":
-                var s = html_cid(d[i].properties);
+                var s = cid(d[i].properties);
                 html = html + "<"+d[i].tag+s+">" + d[i].text + "</"+d[i].tag+">\n";
                 break;
             case "list":
-                html = html + html_list(d[i]);
+                html = html + list(d[i]);
                 break;
             case "newline":
                 //d.splice(i,1);
@@ -67,7 +168,7 @@ function isArray(o) {
   }
 
   /* Format class, id, data */
-  function html_cid(props) {
+  function cid(props) {
     
     var html = "";
     if (props.id != ""  &&  props.id != undefined) {
@@ -86,69 +187,22 @@ function isArray(o) {
   }
   
   /* Format lists */
-  function html_list(l) {
+  function list(l) {
     
     var html = "";
     var inner = "";
     
     for (i in l.items) {
-        var s = html_cid(l.items[i].properties);
+        var s = cid(l.items[i].properties);
         inner = inner + "<li"+s+">"+l.items[i].text+"</li>\n";
     }
     
-    s = html_cid(l.properties);
+    s = cid(l.properties);
     html = html + "<ul"+s+">\n" + inner + "</ul>\n";
     
     return html;
   }
   
-
-/* - - - */
-/* LaTeX */
-/* - - - */
-  function latex(d) {
-    //console.log("---------------------");
-    var latex = "";
-    for (i in d) {
-        //console.log(d[i].type);
-        //console.log(d[i]);
-        switch(d[i].type){
-            case "heading":
-                latex = latex + latex_heading(d[i]);
-                break;
-            case "block":
-                var s = html_cid(d[i].properties);
-                latex = latex + "<"+d[i].tag+s+">" + d[i].text + "</"+d[i].tag+">\n";
-                break;
-            case "list":
-                latex = latex + html_list(d[i]);
-                break;
-            case "newline":
-                //d.splice(i,1);
-                //console.log(d);
-            default:
-        }
-    }
-    
-    //console.log(html);
-    $('#latex').val(latex);
-
-    return d;
-  }
-
-  function latex_heading(h) {
-    
-    switch(h.level){
-      case 1:
-        return "\\chapter{"+h.text+"}\n\n";
-      case 2:
-        return "\\section{"+h.text+"}\n\n";
-      case 3:
-        return "\\subsection{"+h.text+"}\n\n";
-      case 4:
-        return "\\subsubsection{"+h.text+"}\n\n";
-    }
-  }
 
 }
 
@@ -157,17 +211,17 @@ function isArray(o) {
 /*--------------------*/
 
 html
-  = d:doc  {latex(d); return html(d)}
+  = d:doc  {return html(d)}
 
 doc
   = block+
 
 block
   = heading
+  / para
   / nl
   / blockblock
   / list
-  / para
 
 
 
@@ -200,10 +254,9 @@ mtext
 /* various text types too? */
 
 prop
-  = i:id c:class? d:data? a:attr? sp   {return {id:i,classes:c,data:d,attributes:a}}
-  / c:class d:data? a:attr? sp         {return {classes:c,data:d,attributes:a}}
-  / d:data a:attr? sp                  {return {data:d,attributes:a}}
-  / a:attr sp                          {return {attributes:a}}
+  = i:id c:class? d:data? sp   {return {id:i,classes:c,data:d}}
+  / c:class d:data? sp         {return {classes:c,data:d}}
+  / d:data sp                  {return {data:d}}
 
 propnsp
   = i:id c:class? d:data?      {return {id:i,classes:c,data:d}}
@@ -223,9 +276,6 @@ class
 
 data
   = d:([:][a-z0-9]+[=][a-z0-9]+)+  {var o={}; for(i in d){o[d[i][1].join("")]=d[i][3].join("")}; return o;}
-
-attr
-  = d:([@][a-z0-9]+[=][a-z0-9]+)+  {var o={}; for(i in d){o[d[i][1].join("")]=d[i][3].join("")}; return o;}
 
 
 
@@ -349,3 +399,24 @@ listitem
 
 
 
+</textarea>
+    <textarea id="html2"></textarea>
+    <textarea id="latex2"></textarea>
+  </div>
+  <div class="box">
+    <textarea id="dotmarkup">
+  ===  Heading Text  ===
+
+ * List Item 1
+ * List Item 2
+
+
+    </textarea>
+  </div>
+  <div class="box">
+    <textarea id="json"></textarea></div>
+  <div class="box">
+    <textarea id="html"></textarea><textarea id="latex"></textarea>
+  </div>
+</body>
+</html>

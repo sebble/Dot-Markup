@@ -1,0 +1,22 @@
+===========================
+ A ReStructuredText Primer
+===========================
+         By Richard Jones
+---------------------------
+
+
+:Author:
+    Richard Jones
+:Version:
+    5801
+:Copyright:
+    This document has been placed in the public domain.
+
+
+.. tableofcontents::
+
+
+The text below contains links that look like "(quickref)". These are relative links that point to the `Quick reStructuredText`_ user reference. If these links don't work, please refer to the `master quick reference`_ document.
+
+.. note::
+    This document is an informal introduction to reStructuredText. The `What Next?`_ section below has links to further resources, including a formal reference.

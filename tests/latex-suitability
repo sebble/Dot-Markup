@@ -1,0 +1,29 @@
+.. Huge::
+  .. center::
+    .. figure::[!h]
+      .. vspace{3cm}
+      .. center:: ..graphics[width=6cm]{graphics/newcastle_master_col.jpg}
+    
+    .. textbf Bayesian Inference for Large Scale Mobile Phone Usage Data
+    .. vspace{2.5cm}
+    .. LARGE::
+      .. noindent:: School of Mathematics & Statistics \\
+                    Newcastle University \\
+      .. vspace{1cm}
+      .. noindent:: Sebastian Mellor \\
+      .. vspace{1cm}
+      .. noindent:: April 28, 2012
+
+.. thispagestyle{empty}
+.. setcounter{page}{0}
+.. pagenumbering{roman}
+.. newpage
+
+
+###.huge
+  ###.center
+    [[figure_center:label,3in plots/simhist.pdf "Caption"]]
+  ###
+###
+
+
